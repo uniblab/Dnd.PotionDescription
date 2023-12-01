@@ -1,5 +1,5 @@
 ﻿// PotDesc.exe generates one or more magic potion descriptions.
-// Copyright( C ) 2023 Timothy J. Bruce
+// Copyright (c) 2023 Timothy J. Bruce
 
 /*
     This program is free software: you can redistribute it and/or modify
@@ -64,15 +64,15 @@ namespace Dnd.PotionDescription {
 			theAmbianceAmplitude = new System.Collections.Generic.List<System.String> {
 				"bland", "decidedly", "delicate", "disagreeable", "distinct", 
 				"faint", "harsh", "mellow", "mild", "moderate", "noisome", 
-				"noticeable", "severe", "sharp",
+				"noticeable", "noxious", "severe", "sharp", "strong" 
 			}.AsReadOnly();
 
 			theAmbiance = new System.Collections.Generic.List<System.String> {
-				"acidic", "bilious", "bitter", "burning", 
-				"buttery", "dusty", "earthy", "fiery", "fishy", 
+				"acidic", "bilious", "bitter", "burning",
+				"buttery", "dusty", "earthy", "fiery", "fishy",
 				"greasy", "herbal", "honeyed", "lemony", "meaty",
 				"metallic", "milky", "musty", "oniony", "peppery",
-				"perfumy", "salty", "soothing", "sour", 
+				"perfumy", "salty", "soothing", "sour",
 				"spicy", "sweet", "tart", "vinegary", "watery"
 			}.AsReadOnly();
 			theTaste = new System.Collections.Generic.List<System.String>( theAmbiance ).AsReadOnly();
@@ -111,7 +111,7 @@ namespace Dnd.PotionDescription {
 				"magento", "mauve", "plum", "puce", "purple"
 			}.AsReadOnly();
 			theBrown = new System.Collections.Generic.List<System.String> {
-				"chocolate", "ecru", "fawn", "mahogany", "tan", 
+				"chocolate", "ecru", "fawn", "mahogany", "tan",
 				"terra cotta"
 			}.AsReadOnly();
 			theMetalic = new System.Collections.Generic.List<System.String> {
@@ -163,8 +163,7 @@ namespace Dnd.PotionDescription {
 
 			var rand = new System.Random();
 			for ( var i = 0; i < number; i++ ) {
-				var foo = BuildAmbiance( rand );
-				System.Console.Out.WriteLine( foo );
+				;
 			}
 			return 0;
 		}
@@ -197,27 +196,6 @@ namespace Dnd.PotionDescription {
 		}
 		private static System.Int32 GetOdor( System.Random rand ) {
 			return rand.Next( theOdor.Count );
-		}
-		private static System.String BuildAmbiance( System.Random rand ) {
-			var aaLen = theAmbianceAmplitude.Count;
-			var t = theTaste[ rand.Next( theTaste.Count ) ];
-			var ta = theAmbianceAmplitude[ rand.Next( aaLen ) ];
-			var o = theOdor[ rand.Next( theOdor.Count ) ];
-			var oa = theAmbianceAmplitude[ rand.Next( aaLen ) ];
-
-			var taste = 0 == rand.Next( 2 )
-				? "It has a {0}, {1} taste to the tongue, "
-				: 0 == rand.Next( 2 )
-					? "It tastes {1}, "
-					: "It has a {1} taste, "
-			;
-			var odor = 0 == rand.Next( 2 )
-				? "and emits a {2}, {3} odor."
-				: 0 == rand.Next( 2 )
-					? "and smells {1}."
-					: "and it has a {1} smell."
-			;
-			return System.String.Format( taste + odor, ta, t, oa, o );
 		}
 		private static System.Int32 GetOpacity( System.Random rand ) {
 			return rand.Next( theOpacity.Count );
@@ -285,7 +263,7 @@ namespace Dnd.PotionDescription {
 		private static void PrintCopyright() {
 			var copy = new System.String[] {
 				"PotDesc.exe generates one or more magic potion descriptions.",
-				"Copyright( C ) 2023 Timothy J. Bruce",
+				"Copyright (c) 2023 Timothy J. Bruce",
 				"",
 				"This program is free software: you can redistribute it and / or modify",
 				"it under the terms of the GNU General Public License as published by",
@@ -298,7 +276,7 @@ namespace Dnd.PotionDescription {
 				"GNU General Public License for more details.",
 				"",
 				"You should have received a copy of the GNU General Public License",
-				"along with this program.If not, see < https://www.gnu.org/licenses/>."
+				"along with this program.If not, see <https://www.gnu.org/licenses/>."
 			};
 			foreach ( var line in copy ) {
 				System.Console.WriteLine( line );
