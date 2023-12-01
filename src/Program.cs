@@ -22,7 +22,31 @@ namespace Dnd.PotionDescription {
 
 	public static class Program {
 
+		#region nested classes
+		private class Pair<T> {
+			private readonly T first;
+			private readonly T second;
+			public Pair( T first, T second ) {
+				this.first = first;
+				this.second = second;
+			}
+			public T First {
+				get {
+					return first;
+				}
+			}
+			public T Second {
+				get {
+					return second;
+				}
+			}
+		}
+		#endregion nested classes
+
+
 		#region fields
+		private const System.Int32 theDefaultNumber = 10;
+
 		private static readonly System.Collections.Generic.IList<System.String> theAppearance;
 
 		private static readonly System.Collections.Generic.IList<System.String> theOpacity;
@@ -50,15 +74,16 @@ namespace Dnd.PotionDescription {
 		#region .ctor
 		static Program() {
 			theAppearance = new System.Collections.Generic.List<System.String> {
-				"astringent", "bubbling", "cloudy", "effervescent", "fuming", 
-				"inert", "oily", "slick", "smoky", "sticky", 
+				"astringent", "bubbling", "cloudy", "effervescent",
+				"fuming", "inert", "oily", "slick", "smoky", "sticky", 
 				"syrupy", "vaporous", "viscous", "watery"
 			}.AsReadOnly();
 
 			theOpacity = new System.Collections.Generic.List<System.String> {
-				"clear", "flecked", "layered", "luminous", "opaline",
-				"phosphorescent", "polka-dotted", "rainbowed", 
-				"ribboned", "translucent", "variegated"
+				"clear", "rainbowed",
+				"flecked", "luminous", "muted", "opaline", "opaque", "phosphorescent", "translucent",
+				"layered", "polka-dotted", "ribboned", "striped",
+				"variegated",
 			}.AsReadOnly();
 
 			theAmbianceAmplitude = new System.Collections.Generic.List<System.String> {
@@ -156,22 +181,13 @@ namespace Dnd.PotionDescription {
 					writer = ( a, b ) => a!.WriteLine( b );
 				}
 			} else {
-				writer = ( a, b ) => System.Console.Out.WriteLine( lineEnding: System.Environment.NewLine, data: b );
+				writer = ( a, b ) => System.Console.Out.WriteLine( lineEnding: "\r\n", data: b );
 			}
 
-			System.Int32 number = ParseNumber( processor );
-
-			var rand = new System.Random();
-			for ( var i = 0; i < number; i++ ) {
-				;
-			}
-			return 0;
-		}
-		private static System.Int32 ParseNumber( Icod.Argh.Processor processor ) {
 			System.Int32 number;
 			if ( processor.TryGetValue( "number", true, out var numberString ) ) {
 				if ( System.String.IsNullOrEmpty( numberString ) ) {
-					number = 1;
+					number = theDefaultNumber;
 				} else {
 					if ( !System.Int32.TryParse( numberString, out number ) ) {
 						PrintUsage();
@@ -183,22 +199,81 @@ namespace Dnd.PotionDescription {
 					}
 				}
 			} else {
-				number = 1;
+				number = theDefaultNumber;
 			}
-			return number;
+
+			System.String[] desc = new System.String[ 5 ];
+			var list = new System.Collections.Generic.List<System.String>();
+			list.Add( "Appearance,Opacity,Color,Taste,Odor" );
+			Pair<System.String> pair;
+			var rand = new System.Random();
+			for ( var i = 0; i < number; i++ ) {
+				desc[ 0 ] = GetAppearance( rand );
+				pair = GetOpacityAndColor( rand );
+				desc[ 1 ] = pair.First;
+				desc[ 2 ] = pair.Second;
+				desc[ 3 ] = GetTaste( rand );
+				desc[ 4 ] = GetOdor( rand );
+				for ( var j = 0; j < 5; j++ ) {
+					var d = desc[ j ];
+					d = d.Replace( "\"", "\"\"" );
+					if (
+						d.Contains( ',' )
+						|| d.Contains( '"' )
+					) {
+						d = "\"" + d + "\"";
+					}
+					desc[ j ] = d;
+				}
+				list.Add( System.String.Join( ",", desc ) );
+			}
+			writer( outputPathName, list );
+
+			return 0;
 		}
 
-		private static System.Int32 GetAppearance( System.Random rand ) {
-			return rand.Next( theAppearance.Count );
+		private static System.String GetAppearance( System.Random rand ) {
+			return theAppearance[ rand.Next( theAppearance.Count ) ];
 		}
-		private static System.Int32 GetTaste( System.Random rand ) {
-			return rand.Next( theTaste.Count );
+		private static Pair<System.String> GetOpacityAndColor( System.Random rand ) {
+			var oi = rand.Next( theOpacity.Count );
+			System.String color;
+			if ( oi < 2 ) {
+				color = System.String.Empty;
+			} else if ( oi < 9 ) {
+				var n = ( 3 == rand.Next( 4 ) )
+					? 2
+					: 1
+				;
+				color = GetColor( rand, n ).EnglishJoin();
+			} else if ( oi < 13 ) {
+				var n = ( 3 == rand.Next( 4 ) )
+					? 3
+					: 2
+				;
+				color = GetColor( rand, n ).EnglishJoin();
+			} else {
+				var n = rand.Next( 4 ) + 3;
+				color = GetColor( rand, n ).EnglishJoin();
+			}
+			return new Pair<System.String>( theOpacity[ oi ], color );
 		}
-		private static System.Int32 GetOdor( System.Random rand ) {
-			return rand.Next( theOdor.Count );
+		private static System.Int32 GetAmbianceAmplitude( System.Random rand ) {
+			return rand.Next( theAmbianceAmplitude.Count );
 		}
-		private static System.Int32 GetOpacity( System.Random rand ) {
-			return rand.Next( theOpacity.Count );
+		private static System.String GetTaste( System.Random rand ) {
+			var ti = rand.Next( theTaste.Count );
+			return ( 0 == rand.Next( 2 ) )
+				? theTaste[ ti ]
+				: theAmbianceAmplitude[ GetAmbianceAmplitude( rand ) ] + " " + theTaste[ ti ]
+			;
+		}
+		private static System.String GetOdor( System.Random rand ) {
+			var oi = rand.Next( theOdor.Count );
+			return ( 0 == rand.Next( 2 ) )
+				? theOdor[ oi ]
+				: theAmbianceAmplitude[ GetAmbianceAmplitude( rand ) ] + " " + theOdor[ oi ]
+			;
 		}
 		private static System.Collections.Generic.IList<System.String> GetColor( System.Random rand, System.Int32 number ) {
 			System.Collections.Generic.IList<System.String> output = new System.Collections.Generic.List<System.String>( number );
@@ -230,8 +305,6 @@ namespace Dnd.PotionDescription {
 
 			return output;
 		}
-
-
 		private static System.String EnglishJoin( this System.Collections.Generic.IList<System.String> collection ) {
 			System.Text.StringBuilder output = new System.Text.StringBuilder();
 			var c = collection.Count;
@@ -239,13 +312,13 @@ namespace Dnd.PotionDescription {
 				output = output.Append( collection.First() );
 			} else if ( 2 == c ) {
 				output = output.Append( collection[ 0 ] ).Append( " and " ).Append( collection[ 1 ] );
-			} else {
+			} else if ( 0 < c ) {
 				var stop = c - 1;
 				for ( var i = 0; i < stop; i++ ) {
 					output = output.Append( collection[ i ] ).Append( ", " );
 				}
 				output = output.Append( "and " ).Append( collection[ stop ] );
-            }
+			}
 			return output.ToString();
 		}
 
