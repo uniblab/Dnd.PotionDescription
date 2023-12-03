@@ -8,8 +8,10 @@ Displays this text.
 PotDesc.exe (-c | --copyright | /copyright)
 Displays copyright and licensing information.
 
-PotDesc.exe [(-o | --output | /output) outputFilePathName]
-PotDesc.exe generates a random description for a potion or such in D&amp;D.  If outputFilePathName is omitted then output is written to StdOut.
+PotDesc.exe [(-n | --number | /number) number] [(-o | --output | /output) outputFilePathName]
+PotDesc.exe generates a random description for a potion or such in D&amp;D.
+If number is omitted then 10 descriptions are generated; otherwise the specified number of potion descriptions is generated.  The number argument must be positive.
+If outputFilePathName is omitted then output is written to StdOut.
 
 ## Copyright and Licensing
 PotDesc.exe generates a random description for a potion or such in D&amp;D.
