@@ -17,28 +17,74 @@
 */
 
 using Icod.Helpers;
+using System.Runtime.ExceptionServices;
 
 namespace Dnd.PotionDescription {
 
 	public static class Program {
 
 		#region nested classes
-		private class Pair<T> {
-			private readonly T first;
-			private readonly T second;
+		private sealed class Pair<T> {
+			private static readonly System.Int32 theHashCode;
+			private readonly T myFirst;
+			private readonly T mySecond;
+			private readonly System.Int32 myHashCode;
+			static Pair() {
+				theHashCode = System.Reflection.Assembly.GetExecutingAssembly().GetHashCode();
+			}
 			public Pair( T first, T second ) {
-				this.first = first;
-				this.second = second;
+				myFirst = first;
+				mySecond = second;
+				myHashCode = theHashCode;
+				unchecked {
+					if ( first is not null ) {
+						myHashCode += first.GetHashCode();
+					}
+					if ( second is not null ) {
+						myHashCode += second.GetHashCode();
+					}
+				}
 			}
 			public T First {
 				get {
-					return first;
+					return myFirst;
 				}
 			}
 			public T Second {
 				get {
-					return second;
+					return mySecond;
 				}
+			}
+			public sealed override System.Int32 GetHashCode() {
+				return myHashCode;
+			}
+			public sealed override System.Boolean Equals( System.Object? obj ) {
+				if ( obj is null ) {
+					return false;
+				} else if ( obj is Pair<T> ) {
+					return this.Equals( obj as Pair<T> );
+				} else {
+					return false;
+				}
+			}
+			public System.Boolean Equals( Pair<T>? other ) {
+				if ( other is null ) {
+					return false;
+				} else {
+					return System.Object.Equals( myFirst, other.First ) && System.Object.Equals( mySecond, other.Second );
+				}
+			}
+			public static System.Boolean operator ==( Pair<T>? first, Pair<T>? second ) {
+				if ( ( first is null ) && ( second is null ) ) {
+					return true;
+				} else if ( ( first is null ) || ( second is null ) ) {
+					return false;
+				} else {
+					return first.Equals( second );
+				}
+			}
+			public static System.Boolean operator !=( Pair<T>? first, Pair<T>? second ) {
+				return !( first == second );
 			}
 		}
 		#endregion nested classes
